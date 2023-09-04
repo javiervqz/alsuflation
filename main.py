@@ -1,5 +1,10 @@
 from alsuflation import Alsuflation
 import pandas as pd
+from datetime import datetime
+import os
+
+
+
 
 def all_items(object_alsuflation):
 
@@ -30,6 +35,8 @@ if __name__ == "__main__":
     data_base  = Alsuflation(limit=1000)
     stores = data_base.get_stores()
 
+   
+
     
     # print(stores)
 
@@ -38,8 +45,14 @@ if __name__ == "__main__":
     al_stores["branch_id"] = al_stores['branch_id'].astype('int')
 
 
+    date = datetime.now().strftime("%Y%m%d%H")
+    os.mkdir(f"data/{date}/")
+    al_stores.to_csv(f'data/{date}/al_stores.csv', index=False)
+    all_items_in_store_base = all_items(data_base)
 
-    al_stores.to_csv('data/al_stores.csv', index=False)
+    items_df = pd.DataFrame(all_items_in_store_base)
+
+    items_df.to_csv(f'data/{date}/base_al_items.csv', index=False)
 
     # print(al_stores)
 
@@ -52,7 +65,7 @@ if __name__ == "__main__":
         all_items_in_store = all_items(data_c)
         items_df = pd.DataFrame(all_items_in_store)
 
-        items_df.to_csv(f'data/{store_id}_al_items.csv', index=False)
+        items_df.to_csv(f'data/{date}/{store_id}_al_items.csv', index=False)
 
 
     # al_items = pd.DataFrame(all_items(data))
