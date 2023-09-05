@@ -63,7 +63,6 @@ if __name__ == "__main__":
     ssh = Path(ssh_path)
     ssh.mkdir(parents=True, exist_ok=True)
 
-    al_stores.to_csv(f'{ssh_path}/al_stores.csv', index=False)
     all_items_in_store_base = all_items(data_base)
 
     items_df = pd.DataFrame(all_items_in_store_base)
