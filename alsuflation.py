@@ -1,9 +1,6 @@
 import requests
 import urllib3
-import socket
-import http
 import time
-import random
 import logging
 
 # HEADERS = {
@@ -24,9 +21,6 @@ HEADERS ={
 'Host': 'api2.alsuper.com',
 'Origin':'https://alsuper.com',
 'Referer': 'https://alsuper.com/',
-# 'Sec-Fetch-Dest': 'empty',
-# 'Sec-Fetch-Mode': 'cors',
-# 'Sec-Fetch-Site': 'same-site',
 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
 'sec-ch-ua-platform': "Windows"
 }
@@ -52,15 +46,14 @@ class Alsuflation(object):
     def _build_session(self):
         self._session = requests.Session()
 
-        # logging.getLogger("urllib3").setLevel(logging.INFO)
 
         retry = urllib3.Retry(
-        total=100,
+        total=10,
         connect=5,
         read=5,
         allowed_methods=frozenset(['GET', 'POST', 'PUT', 'DELETE']),
         status=5,
-        backoff_factor=2,
+        backoff_factor=.5,
         other=10,
         status_forcelist=(429, 500, 501, 502, 503, 504)
         )
@@ -68,15 +61,6 @@ class Alsuflation(object):
         adapter = requests.adapters.HTTPAdapter(max_retries=retry)
         self._session.mount('http://', adapter)
         self._session.mount('https://', adapter)
-
-        # urllib3.connection.HTTPConnection.default_socket_options = (
-        #     urllib3.connection.HTTPConnection.default_socket_options + [
-        #         (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-        #         (socket.SOL_TCP, socket.TCP_KEEPIDLE, 45),
-        #         (socket.SOL_TCP, socket.TCP_KEEPINTVL, 10),
-        #         (socket.SOL_TCP, socket.TCP_KEEPCNT, 6)
-        #     ]
-        # )
 
     def _process_url(self,endpoint=None, params=None):
             if params is None:
@@ -91,18 +75,13 @@ class Alsuflation(object):
             return f"{self.base_url}{endpoint}/{par_str}"
 
     def _get(self, url):
-        # print_url = url.split('&')[0]
-        # print(f'Waiting request...{print_url}')
-        # time.sleep(random.randrange(1,10,1))
-        # try:
         for _ in range(3):
             try:
                 with self._session as s:
                     response = s.request("GET", url, headers=HEADERS)
                     response.raise_for_status()
                     result = response.json()
-                # print("request succesfull")
-                break
+                    return result
             except urllib3.exceptions.ProtocolError:
                 logging.warning("retrying urllib3.exceptions.ProtocolError")
                 time.sleep(5)
@@ -111,33 +90,18 @@ class Alsuflation(object):
                 time.sleep(5)
             except requests.exceptions.ChunkedEncodingError:
                 logging.warning("retrying requests.exceptions.ChunkedEncodingError")
+                HEADERS['Referer'] = url
                 time.sleep(5)
             except urllib3.exceptions.ResponseError:
                 return ''
-            
-        # except http.client.RemoteDisconnected:
-        #     HEADERS['Referer'] = url
-        #     with self._session as s:
-        #         response = s.request("GET", url, headers=HEADERS)
-        #         response.raise_for_status()
-        #         result = response.json()
-        #     print("request succesfull")
-        # except urllib3.exceptions.IncompleteRead:
-        #     HEADERS['Referer'] = url
-        #     with self._session as s:
-        #         response = s.request("GET", url, headers=HEADERS)
-        #         response.raise_for_status()
-        #         result = response.json()
-        #     print("request succesfull")
 
            
 
-        return result
+        
     
     def get_stores(self):
         url = self._process_url(endpoint="v1/stores")
         stores_data = self._get(url)['data']
-        # print(url)
         return stores_data
     
 
