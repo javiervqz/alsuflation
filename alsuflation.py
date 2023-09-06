@@ -48,12 +48,12 @@ class Alsuflation(object):
 
 
         retry = urllib3.Retry(
-        total=10,
-        connect=5,
-        read=5,
+        total=100,
+        connect=15,
+        read=15,
         allowed_methods=frozenset(['GET', 'POST', 'PUT', 'DELETE']),
-        status=5,
-        backoff_factor=.5,
+        status=15,
+        backoff_factor=2,
         other=10,
         status_forcelist=(429, 500, 501, 502, 503, 504)
         )
