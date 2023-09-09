@@ -54,6 +54,7 @@ class Alsuflation(object):
         allowed_methods=frozenset(['GET', 'POST', 'PUT', 'DELETE']),
         status=15,
         backoff_factor=1,
+        backoff_max=20,
         other=10,
         status_forcelist=(429, 500, 501, 502, 503, 504)
         )
@@ -95,7 +96,7 @@ class Alsuflation(object):
             except urllib3.exceptions.ResponseError:
                 return ''
             except requests.exceptions.RetryError:
-                logging.warning("retrying requests.exceptions.ChunkedEncodingError")
+                logging.warning("retrying requests.exceptions.RetryError")
                 none_dict = {"data":{"data":[] , "total_items":0} }
                 return none_dict
 
@@ -114,3 +115,18 @@ class Alsuflation(object):
         self.params["page"] = page
         url = self._process_url(endpoint=f"v1/ms-products/branch/{self.store_id}", params=self.params)
         return self._get(url)
+    
+    def all_items(self):
+        items_base = self.get_items()
+
+        items_list = items_base["data"]["data"]
+        items_total = items_base["data"]["total_items"]
+
+        page = 2
+        while len(items_list) < items_total:
+            next_items = self.get_items(page=page)
+            items_list.extend(next_items["data"]["data"])
+            page += 1
+        print(f"branch {self.store_id} items wrote {len(items_list)} vs items expected: {items_total}")
+
+        return items_list

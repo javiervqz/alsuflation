@@ -8,23 +8,23 @@ import argparse
 
 
 
-def all_items(object_alsuflation):
+# def all_items(object_alsuflation):
 
-    assert isinstance(object_alsuflation,Alsuflation)
+#     assert isinstance(object_alsuflation,Alsuflation)
 
-    items_base = object_alsuflation.get_items()
+#     items_base = object_alsuflation.get_items()
 
-    items_list = items_base["data"]["data"]
-    items_total = items_base["data"]["total_items"]
+#     items_list = items_base["data"]["data"]
+#     items_total = items_base["data"]["total_items"]
 
-    page = 2
-    while len(items_list) < items_total:
-        next_items = object_alsuflation.get_items(page=page)
-        items_list.extend(next_items["data"]["data"])
-        page += 1
-    print(f"branch {object_alsuflation.store_id} items wrote {len(items_list)} vs items expected: {items_total}")
+#     page = 2
+#     while len(items_list) < items_total:
+#         next_items = object_alsuflation.get_items(page=page)
+#         items_list.extend(next_items["data"]["data"])
+#         page += 1
+#     print(f"branch {object_alsuflation.store_id} items wrote {len(items_list)} vs items expected: {items_total}")
 
-    return items_list
+#     return items_list
 
 
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     ssh = Path(ssh_path)
     ssh.mkdir(parents=True, exist_ok=True)
 
-    all_items_in_store_base = all_items(data_base)
+    all_items_in_store_base = data_base.all_items()
 
     items_df = pd.DataFrame(all_items_in_store_base)
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     for store_id in stores_id:
         data_c = Alsuflation(store_id=store_id, limit=1000)
-        all_items_in_store = all_items(data_c)
+        all_items_in_store = data_c.all_items()
         items_df = pd.DataFrame(all_items_in_store)
 
         items_df.to_csv(f'{ssh_path}/{store_id}_al_items.csv', index=False)
