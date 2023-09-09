@@ -53,7 +53,7 @@ class Alsuflation(object):
         read=15,
         allowed_methods=frozenset(['GET', 'POST', 'PUT', 'DELETE']),
         status=15,
-        backoff_factor=2,
+        backoff_factor=1,
         other=10,
         status_forcelist=(429, 500, 501, 502, 503, 504)
         )
@@ -94,6 +94,10 @@ class Alsuflation(object):
                 time.sleep(5)
             except urllib3.exceptions.ResponseError:
                 return ''
+            except requests.exceptions.RetryError:
+                logging.warning("retrying requests.exceptions.ChunkedEncodingError")
+                none_dict = {"data":{"data":[] , "total_items":0} }
+                return none_dict
 
            
 
