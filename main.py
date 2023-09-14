@@ -6,48 +6,20 @@ from pathlib import Path
 
 import argparse
 
+def hrly_extract():
+    stores = Alsuflation()
+    stores_dict = stores.get_stores()
+    stores_df = pd.DataFrame(stores_dict)
 
+    date = datetime.now().strftime("%Y%m%d_%H")
+    ssh_path = f"{os.getenv('HOME')}/programs/alsuflation/data/stores_hrl"
+    ssh = Path(ssh_path)
+    ssh.mkdir(parents=True, exist_ok=True)
 
-# def all_items(object_alsuflation):
+    stores_df.to_csv(f'{ssh_path}/{date}_al_stores.csv', index=False)
+    quit()
 
-#     assert isinstance(object_alsuflation,Alsuflation)
-
-#     items_base = object_alsuflation.get_items()
-
-#     items_list = items_base["data"]["data"]
-#     items_total = items_base["data"]["total_items"]
-
-#     page = 2
-#     while len(items_list) < items_total:
-#         next_items = object_alsuflation.get_items(page=page)
-#         items_list.extend(next_items["data"]["data"])
-#         page += 1
-#     print(f"branch {object_alsuflation.store_id} items wrote {len(items_list)} vs items expected: {items_total}")
-
-#     return items_list
-
-
-
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--cron")
-    args = parser.parse_args()
-
-    if args.cron == 'hourly':
-        stores = Alsuflation()
-        stores_dict = stores.get_stores()
-        stores_df = pd.DataFrame(stores_dict)
-
-        date = datetime.now().strftime("%Y%m%d_%H")
-        ssh_path = f"{os.getenv('HOME')}/programs/alsuflation/data/stores_hrl"
-        ssh = Path(ssh_path)
-        ssh.mkdir(parents=True, exist_ok=True)
-
-        stores_df.to_csv(f'{ssh_path}/{date}_al_stores.csv', index=False)
-        quit()
-
-
+def extract():
     data_base  = Alsuflation(limit=1000)
     stores = data_base.get_stores()
 
@@ -78,3 +50,19 @@ if __name__ == "__main__":
         items_df = pd.DataFrame(all_items_in_store)
 
         items_df.to_csv(f'{ssh_path}/{store_id}_al_items.csv', index=False)
+
+
+def load():
+    pass
+
+if __name__ == "__main__":
+
+    load()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cron")
+    args = parser.parse_args()
+
+    if args.cron == 'hourly':
+        hrly_extract()
+    extract()
