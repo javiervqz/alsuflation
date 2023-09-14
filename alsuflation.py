@@ -83,20 +83,14 @@ class Alsuflation(object):
                     response.raise_for_status()
                     result = response.json()
                     return result
-            except urllib3.exceptions.ProtocolError:
-                logging.warning("retrying urllib3.exceptions.ProtocolError")
-                time.sleep(5)
-            except urllib3.exceptions.IncompleteRead:
-                logging.warning("retrying urllib3.exceptions.IncompleteRead")
-                time.sleep(5)
-            except requests.exceptions.ChunkedEncodingError:
-                logging.warning("retrying requests.exceptions.ChunkedEncodingError")
+
+            except requests.exceptions.ChunkedEncodingError as e:
+                logging.warning(f"retrying {e}")
                 HEADERS['Referer'] = url
                 time.sleep(5)
-            except urllib3.exceptions.ResponseError:
-                return ''
-            except requests.exceptions.RetryError:
-                logging.warning("retrying requests.exceptions.RetryError")
+
+            except requests.exceptions.RetryError as e:
+                logging.warning(f"retrying {e}")
                 none_dict = {"data":{"data":[] , "total_items":0} }
                 return none_dict
 
